@@ -68,7 +68,7 @@ func main() {
 
 	// Only check for "sse" since stdio is the default
 	if strings.ToLower(transport) == "sse" {
-		sseServer := server.NewSSEServer(s, server.WithSSEEndpoint("sse"))
+		sseServer := server.NewSSEServer(s, server.WithBasePath("/"))
 		fmt.Printf("SSE server listening on :8080")
 		if err := sseServer.Start(":8080"); err != nil {
 			log.Fatalf("Server error: %v", err)
