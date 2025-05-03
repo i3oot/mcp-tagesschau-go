@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+	"strings"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -61,7 +64,18 @@ func main() {
 		return mcp.NewToolResultText(result), nil
 	})
 
-	if err := server.ServeStdio(s); err != nil {
-		fmt.Printf("Server error: %v\n", err)
+	transport := os.Getenv("MCP_TRANSPORT")
+
+	// Only check for "sse" since stdio is the default
+	if strings.ToLower(transport) == "sse" {
+		sseServer := server.NewSSEServer(s, server.WithBaseURL("http://localhost:8080"))
+		fmt.Printf("SSE server listening on :8080")
+		if err := sseServer.Start(":8080"); err != nil {
+			log.Fatalf("Server error: %v", err)
+		}
+	} else {
+		if err := server.ServeStdio(s); err != nil {
+			log.Fatalf("Server error: %v", err)
+		}
 	}
 }
